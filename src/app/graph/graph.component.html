@@ -1,0 +1,8 @@
+<svg *ngIf="dataLoaded" [attr.height]="svgHeight">
+  <g>
+    <path *ngFor="let branch of branches" [attr.d]="branch | drawBranch : config" fill="none"
+      [attr.stroke]="branch | getBranchColour : config" stroke-width="2" />
+    <circle *ngFor="let vertex of vertices | getVertexData : config" data-id="{{vertex.id}}" [attr.cx]="vertex.cx"
+      [attr.cy]="vertex.cy" [attr.r]="vertex.r" [attr.fill]="vertex.colour" />
+  </g>
+</svg>
