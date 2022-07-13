@@ -35,6 +35,8 @@ export class GraphConfig {
     '#8f5ef9',
     '#ed84f3',
   ];
+  branchAnimationDuration: string = '1.0s';
+  vertexAnimationDuration: string = '0.5s';
 }
 
 export class Point {
@@ -82,13 +84,30 @@ export class PlacedLine {
 export class Branch {
   private readonly colour: number;
   private lines: Line[] = [];
+  private static nextId: number = 0;
+  private static furthestX: number = 0;
+  public readonly id: number;
 
   constructor(colour: number) {
     this.colour = colour;
+    this.id = Branch.nextId++;
   }
 
   public addLine(p1: Point, p2: Point): void {
     this.lines.push(new Line(p1, p2));
+    if (p1.x > Branch.furthestX) {
+      Branch.furthestX = p1.x;
+    } else if (p2.x > Branch.furthestX) {
+      Branch.furthestX = p2.x;
+    }
+  }
+
+  public static getFurtherstX(): number {
+    return Branch.furthestX;
+  }
+
+  public static resetFurthestX(): void {
+    Branch.furthestX = 0;
   }
 
   public getLines(): Line[] {
@@ -194,12 +213,14 @@ export class VertexData {
   public readonly cy: number;
   public readonly r: number;
   public readonly colour: string;
+  public readonly isMerge: boolean;
 
-  constructor(id: number, cx: number, cy: number, r: number, colour: string) {
+  constructor(id: number, cx: number, cy: number, r: number, colour: string, isMerge: boolean) {
     this.id = id;
     this.cx = cx;
     this.cy = cy;
     this.r = r;
     this.colour = colour;
+    this.isMerge = isMerge;
   }
 }

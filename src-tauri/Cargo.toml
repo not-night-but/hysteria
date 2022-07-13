@@ -20,6 +20,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.2", features = ["api-all"] }
 rusqlite = "0.27.0"
 git2 = "0.14.4"
+time = { version = "0.3.11", features = ["formatting"] }
 
 [features]
 # by default Tauri runs in production mode

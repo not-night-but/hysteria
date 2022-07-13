@@ -9,6 +9,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
 import { CommitEffects } from './effects/commit.effects';
+import { RepoEffects } from './effects/repo.effects';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,7 @@ import { CommitEffects } from './effects/commit.effects';
     // !environment.production ? StoreDevtoolsModule.instrument() : [],
     // EffectsModule.forFeature([CommitEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
-    EffectsModule.forRoot([CommitEffects])
+    EffectsModule.forRoot([CommitEffects, RepoEffects]),
   ],
   providers: [],
   bootstrap: [AppComponent]

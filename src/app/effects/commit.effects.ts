@@ -14,9 +14,9 @@ export class CommitEffects {
     return this.actions$.pipe(
 
       ofType(CommitActions.loadCommits),
-      switchMap(() =>
+      switchMap((action) =>
         /** An EMPTY observable only emits completion. Replace with your own observable API request */
-        from(invoke('get_commits')).pipe(
+        from(invoke('get_commits', { repoPath: action.repoPath })).pipe(
           map(data => CommitActions.loadCommitsSuccess({ commits: (data as object[]).map(commit => new Commit(commit)) })),
           catchError(error => of(CommitActions.loadCommitsFailure({ error }))))
       )

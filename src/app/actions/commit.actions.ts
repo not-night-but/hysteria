@@ -2,7 +2,8 @@ import { Commit } from './../graph/classes';
 import { createAction, props } from '@ngrx/store';
 
 export const loadCommits = createAction(
-  '[Commit] Load Commits'
+  '[Commit] Load Commits',
+  props<{ repoPath: string; }>()
 );
 
 export const loadCommitsSuccess = createAction(

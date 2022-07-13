@@ -8,10 +8,11 @@ export interface CommitState {
   commitMap: Map<string, number>;
   vertices: Vertex[];
   branches: Branch[];
-  rawCommits: Commit[];
+  commitData: Commit[];
   config: GraphConfig;
   dataLoaded: boolean;
   svgHeight: number;
+  svgWidth: number;
   availableColours: number[];
 }
 
@@ -19,10 +20,11 @@ export const initialState: CommitState = {
   commitMap: new Map<string, number>(),
   vertices: [],
   branches: [],
-  rawCommits: [],
+  commitData: [],
   config: new GraphConfig(),
   dataLoaded: false,
   svgHeight: 0,
+  svgWidth: 0,
   availableColours: []
 };
 
@@ -39,8 +41,9 @@ function loadCommitsSuccess(state: CommitState, action: { commits: Commit[]; }):
   let newState: CommitState = JSON.parse(JSON.stringify(state));
   let determinePath = determinePathFn.bind(newState);
 
+  Branch.resetFurthestX();
   newState.availableColours = [];
-  newState.rawCommits = action.commits;
+  newState.commitData = action.commits;
   newState.commitMap = new Map<string, number>(action.commits.map((commit, index) => {
     if (commit.sha != null)
       return [commit.sha, index];
@@ -72,6 +75,7 @@ function loadCommitsSuccess(state: CommitState, action: { commits: Commit[]; }):
   }
 
   newState.svgHeight = newState.vertices.length * newState.config.y + newState.config.offsetY - newState.config.y / 2;
+  newState.svgWidth = 2 * newState.config.offsetX + (Branch.getFurtherstX() * newState.config.x);
   newState.dataLoaded = true;
 
   return { ...state, ...newState };

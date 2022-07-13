@@ -14,7 +14,7 @@ export class GetVertexDataPipe implements PipeTransform {
       const r: number = 4;
       const colour: string = config.colours[vertex.getBranch()?.getColour() as number % config.colours.length] as string;
 
-      return new VertexData(id, cx, cy, r, colour);
+      return new VertexData(id, cx, cy, r, colour, vertex.isMerge());
     });
   }
 

@@ -5,7 +5,8 @@
 
 use std::fs::File;
 
-use git2::{BranchType, Repository, Sort};
+use git2::{BranchType, Repository, Sort, Time};
+use time::{format_description, OffsetDateTime};
 
 mod app;
 mod database_handler;
@@ -27,9 +28,9 @@ struct Author {
 }
 
 #[tauri::command]
-fn get_commits(app_handle: tauri::AppHandle) -> Vec<Commit> {
+fn get_commits(app_handle: tauri::AppHandle, repoPath: String) -> Vec<Commit> {
     println!("Attempting to open repository...");
-    let repo = match Repository::open("/home/dsm6069/dev/DealSimple/") {
+    let repo = match Repository::open(repoPath) {
         Ok(repo) => repo,
         Err(e) => panic!("Failed to init: {}", e),
     };
@@ -63,7 +64,7 @@ fn get_commits(app_handle: tauri::AppHandle) -> Vec<Commit> {
                     subject: subject.to_string(),
                     body: body.to_string(),
                     author: Author { name, email },
-                    date: format!("{:?}", date).to_string(),
+                    date: get_time(&date),
                     sha: sha.to_string(),
                     parents,
                 };
@@ -78,6 +79,13 @@ fn get_commits(app_handle: tauri::AppHandle) -> Vec<Commit> {
         return commits;
     }
     panic!("Failed to get revwalk");
+}
+
+fn get_time(time: &Time) -> String {
+    let offset = OffsetDateTime::from_unix_timestamp(time.seconds()).unwrap();
+    let format =
+        format_description::parse("[year]-[month]-[day]T[hour]:[minute]:[second]Z").unwrap();
+    return offset.format(&format).unwrap();
 }
 
 fn main() {
