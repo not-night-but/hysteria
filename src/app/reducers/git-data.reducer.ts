@@ -1,44 +1,85 @@
-import { Vertex, Commit, Branch, GraphConfig, NULL_VERTEX_ID } from './../graph/classes';
+import { BranchData } from './../classes';
+import { Vertex, Commit, Branch, GraphConfig, NULL_VERTEX_ID } from '../graph/classes';
 import { createReducer, on } from '@ngrx/store';
-import * as CommitActions from '../actions/commit.actions';
+import * as GitDataActions from '../actions/git-data.actions';
 
-export const commitFeatureKey = 'commit';
+export const gitDataFeatureKey = 'git data';
 
-export interface CommitState {
-  commitMap: Map<string, number>;
-  vertices: Vertex[];
-  branches: Branch[];
-  commitData: Commit[];
-  config: GraphConfig;
-  dataLoaded: boolean;
-  svgHeight: number;
-  svgWidth: number;
-  availableColours: number[];
+export class CommitState {
+  commitMap: Map<string, number> = new Map<string, number>();
+  vertices: Vertex[] = [];
+  branches: Branch[] = [];
+  commitData: Commit[] = [];
+  config: GraphConfig = new GraphConfig();
+  dataLoaded: boolean = false;
+  svgHeight: number = 0;
+  svgWidth: number = 0;
+  availableColours: number[] = [];
+
+  constructor(init?: Partial<CommitState>) {
+    Object.assign(this, init);
+  }
 }
 
-export const initialState: CommitState = {
-  commitMap: new Map<string, number>(),
-  vertices: [],
-  branches: [],
-  commitData: [],
-  config: new GraphConfig(),
-  dataLoaded: false,
-  svgHeight: 0,
-  svgWidth: 0,
-  availableColours: []
+export interface GitDataState {
+  commitDatas: CommitState,
+  branchesMap: Map<string, BranchData[]>;
+  currentRepo: string;
+}
+
+export const initialState: GitDataState = {
+  commitDatas: new CommitState({
+    commitMap: new Map<string, number>(),
+    vertices: [],
+    branches: [],
+    commitData: [],
+    config: new GraphConfig(),
+    dataLoaded: false,
+    svgHeight: 0,
+    svgWidth: 0,
+    availableColours: []
+  }),
+  branchesMap: new Map<string, BranchData[]>(),
+  currentRepo: ''
 };
 
-export const commitReducer = createReducer(
+export const gitDataReducer = createReducer(
   initialState,
 
-  on(CommitActions.loadCommits, state => state),
-  on(CommitActions.loadCommitsSuccess, loadCommitsSuccess),
-  on(CommitActions.loadCommitsFailure, (state, action) => state),
-
+  on(GitDataActions.loadCommits, state => state),
+  on(GitDataActions.loadCommitsSuccess, loadCommitsSuccess),
+  on(GitDataActions.loadCommitsFailure, (state, action) => {
+    console.error('Load commits Failure!!!', action.error);
+    return state;
+  }),
+  on(GitDataActions.commitViewerLoaded, (state, action) => {
+    return {
+      ...state,
+      currentRepo: action.repoPath
+    };
+  }),
+  on(GitDataActions.loadRepoBranches, (state, action) => {
+    return {
+      ...state,
+      currentRepo: action.repoPath
+    };
+  }),
+  on(GitDataActions.loadRepoBranchesSuccess, (state, action) => {
+    let updatedMap = state.branchesMap;
+    updatedMap.set(action.repoPath, action.data);
+    return {
+      ...state,
+      branchesMap: updatedMap
+    };
+  }),
+  on(GitDataActions.loadRepoBranchesFailure, (state, action) => {
+    console.error('Load Repo Branches Failure!!!', action.error);
+    return state;
+  }),
 );
 
-function loadCommitsSuccess(state: CommitState, action: { commits: Commit[]; }): CommitState {
-  let newState: CommitState = JSON.parse(JSON.stringify(state));
+function loadCommitsSuccess(state: GitDataState, action: { commits: Commit[]; }): GitDataState {
+  let newState: CommitState = JSON.parse(JSON.stringify(state.commitDatas));
   let determinePath = determinePathFn.bind(newState);
 
   Branch.resetFurthestX();
@@ -78,7 +119,7 @@ function loadCommitsSuccess(state: CommitState, action: { commits: Commit[]; }):
   newState.svgWidth = 2 * newState.config.offsetX + (Branch.getFurtherstX() * newState.config.x);
   newState.dataLoaded = true;
 
-  return { ...state, ...newState };
+  return { ...state, commitDatas: newState };
 }
 
 function determinePathFn(this: CommitState, index: number): void {

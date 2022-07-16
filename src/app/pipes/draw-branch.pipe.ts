@@ -6,7 +6,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class DrawBranchPipe implements PipeTransform {
 
-  transform(branch: Branch, config: GraphConfig): string {
+  transform(branch: Branch, config: GraphConfig | null): string {
+    if (config === null) return '';
     const d = config.y * 0.8;
     let lines = branch.getLines().map(x => {
       const p1 = x.p1.toPixel(config);

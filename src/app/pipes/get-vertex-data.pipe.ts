@@ -6,7 +6,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class GetVertexDataPipe implements PipeTransform {
 
-  transform(vertices: Vertex[], config: GraphConfig): VertexData[] {
+  transform(vertices: Vertex[] | null, config: GraphConfig | null): VertexData[] {
+    if (vertices === null || config === null) return [];
     return vertices.filter(vertex => vertex.isOnBranch()).map(vertex => {
       const id: number = vertex.id;
       const cx: number = vertex.getX() * config.x + config.offsetX;

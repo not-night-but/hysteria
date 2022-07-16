@@ -3,7 +3,7 @@
 
 use rusqlite::params;
 
-use crate::database_handler::DbConnection;
+use crate::handlers::database_handler::DbConnection;
 use std::{
     fs::{self, OpenOptions},
     io::{BufRead, BufReader},

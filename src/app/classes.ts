@@ -1,4 +1,5 @@
 export class BranchData {
   name: string = '';
-  tipId: string = '';
+  tip_id: string = '';
+  is_remote: boolean = false;
 }

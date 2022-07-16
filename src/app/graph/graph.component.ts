@@ -1,9 +1,7 @@
 import { State } from './../store/index';
 import { Store } from '@ngrx/store';
-import { Component, Input, OnInit } from '@angular/core';
-import { Branch, Commit, Vertex, Point, GraphConfig, SVG_NAMESPACE, NULL_VERTEX_ID } from './classes';
-
-
+import { Component, OnInit } from '@angular/core';
+import { Branch, Vertex, GraphConfig } from './classes';
 
 @Component({
   selector: 'app-graph',
@@ -17,10 +15,6 @@ import { Branch, Commit, Vertex, Point, GraphConfig, SVG_NAMESPACE, NULL_VERTEX_
   `]
 })
 export class GraphComponent implements OnInit {
-  // @Input() set commits(commits: Commit[]) {
-  //   console.log('Commits set!');
-  //   this.loadCommits(commits);
-  // }
   vertices: Vertex[] = [];
   branches: Branch[] = [];
   config: GraphConfig = new GraphConfig();
@@ -28,10 +22,10 @@ export class GraphComponent implements OnInit {
   svgHeight: number = 0;
   svgWidth: number = 0;
 
-  constructor(private store: Store) { }
+  constructor(private store: Store<State>) { }
 
   ngOnInit(): void {
-    this.store.select(state => (state as State).commits).subscribe({
+    this.store.select(state => state.gitData.commitDatas).subscribe({
       next: commitState => {
         if (commitState.dataLoaded) {
           this.vertices = commitState.vertices;

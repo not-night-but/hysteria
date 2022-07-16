@@ -5,7 +5,7 @@ export class Commit {
   subject: string | null = null;
   body: string | null = null;
   author: Author | null = null;
-  date: string | null = null;
+  date: Date | null = null;
   sha: string | null = null;
   parents: string[] = [];
   constructor(init?: Partial<Commit>) {

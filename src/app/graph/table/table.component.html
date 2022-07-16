@@ -1,22 +1,37 @@
-<div *ngIf="dataLoaded" class="mx-0 text-white"
-  [attr.style]="'width: ' + width +'px; overflow-x: scroll; white-space: nowrap;'">
-  <div *ngFor="let commit of commits; index as i">
+<!-- TODO We need to set the width dynamically based on the viewport width - the svg width -->
+<div *ngIf="dataLoaded | async" class="mx-0 text-white"
+  [attr.style]="'width: ' + '1400' +'px; overflow-x: scroll; white-space: nowrap;'">
+  <div *ngFor="let commit of commits | async; index as i">
     <div class="commit-entry" (click)="commit_onClick(commit)" [ngClass]="{'text-dark': commit.sha === clickedId}"
-      [ngStyle]="{'background': commit.sha === clickedId ? getColour(vertices[i]) : ''}">
+      [ngStyle]="{'background': commit.sha === clickedId ? getColour((vertices | async)?.at(i)) : ''}">
       <div class="row">
-        <div class="col-9 text-truncate">
-          {{commit.subject}}
+        <div class="col-8 text-truncate">
+          <span>
+            <span class="badge rounded-pill me-1 text-dark"
+              [ngStyle]="{'background': getColour((vertices | async)?.at(i))}" *ngIf="(branchesMap | async)?.has(i)">
+              {{getBranchTag((branchesMap | async)?.get(i))}}
+            </span>
+            {{commit.subject}}
+          </span>
         </div>
-        <div class="col-3">
+        <div class="col-4">
           <div class="row">
-            <div class="col-4 text-truncate">
-              {{commit.author?.name}}
+            <div class="col-5 text-truncate">
+              <div class="row">
+                <div class="col-1 p-0 d-flex flex-wrap align-items-center">
+                  <img class="d-block m-auto" [src]="getUserAvatar(commit.author?.email)" alt="avatar">
+                </div>
+                <div class="col-11">
+                  {{commit.author?.name}}
+                </div>
+              </div>
             </div>
             <div class="col-2">
               {{commit.sha?.substring(0, 7)}}
             </div>
-            <div class="col-6">
-              {{commit.date}}
+            <div class="col-5">
+              <!-- TODO THIS is still in UTC, we need to convert it to user's tz -->
+              {{commit.date | date : 'MMM dd, y, HH:mm:ss'}}
             </div>
           </div>
         </div>

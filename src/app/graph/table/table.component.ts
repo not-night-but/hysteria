@@ -1,7 +1,11 @@
+import { AsyncPipe } from '@angular/common';
+import { BranchData } from './../../classes';
 import { State } from './../../store/index';
 import { Store } from '@ngrx/store';
-import { Commit, Branch, Vertex, NULL_VERTEX_ID } from './../classes';
-import { Component, OnInit } from '@angular/core';
+import { Commit, Vertex } from './../classes';
+import { Component, OnInit, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Md5 } from 'ts-md5';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-table',
@@ -15,48 +19,52 @@ import { Component, OnInit } from '@angular/core';
 
     .commit-entry:hover {
       cursor: pointer;
-      background: hsl(0, 0%, 8%);
+      background: hsl(0, 0%, 12%);
     }
   `]
 })
 export class TableComponent implements OnInit {
-  commits: Commit[] = [];
-  vertices: Vertex[] = [];
-  leftMargin: number = 0;
-  topMargin: number = 0;
-  width: number = 0;
-  colours: string[] = [];
-  dataLoaded: boolean = false;
+  commits: Observable<Commit[]> = this.store.select(state => state.gitData.commitDatas.commitData);
+  vertices: Observable<Vertex[]> = this.store.select(state => state.gitData.commitDatas.vertices);
+  colours: Observable<string[]> = this.store.select(state => state.gitData.commitDatas.config.colours);
+  dataLoaded: Observable<boolean> = this.store.select(state => state.gitData.commitDatas.dataLoaded);
   clickedId: string | null = null;
+  branches: Observable<BranchData[]> = this.store.select(state => {
+    return state.gitData.branchesMap.get(state.gitData.currentRepo) || [];
+  });
+  branchesMap: Observable<Map<number, BranchData>> = this.store.select(state => {
+    const branches = state.gitData.branchesMap.get(state.gitData.currentRepo) || [];
+    const commits = state.gitData.commitDatas.commitData;
+    if (commits.length > 0)
+      return new Map(branches.map(branch => [commits.findIndex(commit => commit.sha === branch.tip_id), branch]));
+    else
+      return new Map();
+  });;
 
-  constructor(private store: Store) { }
+  constructor(private store: Store<State>, private changeRef: ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    let date = new Date();
-    console.log(date);
-    this.store.select(state => (state as State).commits).subscribe({
-      next: commitState => {
-        if (commitState.dataLoaded) {
-          this.commits = commitState.commitData;
-          this.vertices = commitState.vertices;
-          this.width = window.innerWidth - commitState.svgWidth;
-          this.colours = commitState.config.colours;
-          this.topMargin = commitState.config.offsetY;
-          this.dataLoaded = true;
-        } else {
-          this.dataLoaded = false;
-        }
-      }
-    });
-
   }
 
   public commit_onClick(commit: Commit): void {
     this.clickedId = commit.sha;
   }
 
-  public getColour(vertex: Vertex): string {
-    return this.colours[vertex.getColour() as number % this.colours.length];
+  public getColour(vertex: Vertex | undefined): string {
+    if (vertex === undefined) return '';
+    return new AsyncPipe(this.changeRef).transform(this.colours.pipe(
+      map(colours => colours[vertex.getColour() as number % colours.length])
+    )) ?? '';
   }
 
-}
+  public getUserAvatar(email: string | null | undefined): string {
+    var hash = Md5.hashStr(email?.trim().toLowerCase() ?? '');
+    return `https://www.gravatar.com/avatar/${hash}?s=18&d=robohash`;
+  }
+
+  public getBranchTag(data: BranchData | undefined): string {
+    if (data === undefined) return '';
+    return data.name;
+  }
+
+};

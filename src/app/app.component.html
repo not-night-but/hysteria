@@ -1,14 +1,72 @@
-<button *ngIf="!hideButton" type="button" (click)="button_onClick()">
-  Get Commits
-</button>
-
-<div class="container-fluid px-0 mt-1">
-  <div class="mx-0 row align-items-start flex-nowrap" style="overflow-x: hidden;">
-    <div class="px-0 col-auto">
-      <app-graph></app-graph>
-    </div>
-    <div class="px-0 col-auto">
-      <app-table></app-table>
+<!-- <nav class="navbar navbar-expand-lg h-background text-white">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 text-white">
+        <li class="nav-item">
+          <a class="nav-link active text-white" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link text-white" href="#">Link</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Dropdown
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">Disabled</a>
+        </li>
+      </ul>
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
     </div>
   </div>
+</nav>
+
+<div class="d-flex flex-nowrap" style="overflow: hidden;">
+  <div class="d-flex flex-column flex-shrink-0 p-3 text-white h-background" style="width: 280px;">
+    <div style="position: fixed;">
+      <a href="" class="d-flex align-items-center mb-3 mb-md-0 text-white text-decoration-none">
+        <span class="fs-4">SIDEBAR</span>
+      </a>
+      <div class="nav flex-column mb-auto">
+        Content
+      </div>
+    </div>
+  </div> -->
+<div class="h-header">
+  HEADER
 </div>
+<div class="h-sidebar d-flex flex-nowrap">
+  <div class="d-flex flex-column flex-shrink-0 p-3 text-white">
+    <!-- <div style="position: fixed;"> -->
+    <a href="" class="d-flex align-items-center mb-3 mb-md-0 text-white text-decoration-none">
+      <span class="fs-4">SIDEBAR</span>
+    </a>
+    <div class="nav flex-column mb-auto">
+      Content
+    </div>
+    <!-- </div> -->
+  </div>
+</div>
+
+<div class="h-inner-content">
+  <app-commit-viewer></app-commit-viewer>
+</div>
+<!-- </div> -->

@@ -4,24 +4,24 @@
     <path *ngFor="let branch of branches" [id]="'branch-' + branch.id" [attr.d]="branch | drawBranch : config"
       fill="none" [attr.stroke]="branch | getBranchColour : config" stroke-width="2"
       [attr.stroke-dasharray]="getPathLength(branch.id)" [attr.stroke-dashoffset]="getPathLength(branch.id)">
-      <animate attributeName="stroke-dashoffset" begin="0s" [attr.dur]="config.branchAnimationDuration" to="0"
+      <animate attributeName="stroke-dashoffset" begin="1s" [attr.dur]="config.branchAnimationDuration" to="0"
         fill="freeze" />
     </path>
     <g *ngFor="let vertex of vertices | getVertexData : config">
       <circle *ngIf="!vertex.isMerge" data-id="{{vertex.id}}" [attr.cx]="vertex.cx" [attr.cy]="vertex.cy"
         [attr.fill]="vertex.colour">
-        <animate attributeName="r" begin="0s" [attr.dur]="config.vertexAnimationDuration" [attr.to]="vertex.r"
+        <animate attributeName="r" begin="1s" [attr.dur]="config.vertexAnimationDuration" [attr.to]="vertex.r"
           fill="freeze" />
       </circle>
       <rect *ngIf="vertex.isMerge" class="diamond" data-id="{{vertex.id}}" [attr.x]="vertex.cx" [attr.y]="vertex.cy"
         [attr.fill]="vertex.colour">
-        <animate attributeName="width" begin="0s" [attr.dur]="config.vertexAnimationDuration" [attr.to]="vertex.r * 2"
+        <animate attributeName="width" begin="1s" [attr.dur]="config.vertexAnimationDuration" [attr.to]="vertex.r * 2"
           fill="freeze" />
-        <animate attributeName="height" begin="0s" [attr.dur]="config.vertexAnimationDuration" [attr.to]="vertex.r * 2"
+        <animate attributeName="height" begin="1s" [attr.dur]="config.vertexAnimationDuration" [attr.to]="vertex.r * 2"
           fill="freeze" />
-        <animate attributeName="x" begin="0s" [attr.dur]="config.vertexAnimationDuration"
+        <animate attributeName="x" begin="1s" [attr.dur]="config.vertexAnimationDuration"
           [attr.to]="vertex.cx - vertex.r" fill="freeze" />
-        <animate attributeName="y" begin="0s" [attr.dur]="config.vertexAnimationDuration"
+        <animate attributeName="y" begin="1s" [attr.dur]="config.vertexAnimationDuration"
           [attr.to]="vertex.cy - vertex.r" fill="freeze" />
       </rect>
     </g>
