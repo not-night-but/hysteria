@@ -1,3 +1,4 @@
+
 export const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 export const NULL_VERTEX_ID = -1;
 
@@ -223,4 +224,10 @@ export class VertexData {
     this.colour = colour;
     this.isMerge = isMerge;
   }
+}
+
+export class BranchData {
+  name: string = '';
+  tip_id: string = '';
+  is_remote: boolean = false;
 }
