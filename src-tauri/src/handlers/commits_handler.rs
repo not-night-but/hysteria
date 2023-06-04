@@ -64,7 +64,7 @@ pub fn get_commits(repo_path: String) -> Result<Vec<Commit>, Error> {
 
         let commits: Vec<Commit> = commits.collect();
 
-        let fileref = File::create("/home/dsm6069/dev/commits.json").unwrap();
+        let fileref = File::create("/home/notnight/dev/commits.json").unwrap();
         serde_json::to_writer_pretty(fileref, &commits).unwrap();
 
         return Ok(commits);

@@ -12,16 +12,18 @@
 </template>
 
 <script lang="ts">
-import { invoke } from '@tauri-apps/api';
+// import { invoke } from '@tauri-apps/api';
 import CommitGraph from './CommitGraph.vue';
+import { useGitDataStore } from '../stores/gitData'; 
 
 export default {
   components: {
     CommitGraph
   },
   mounted() {
-
-    invoke('get_changes', { repoPath: '/home/notnight/dev/beekeeper-studio/' });
+    const store = useGitDataStore();
+    store.loadRepo('/home/notnight/dev/beekeeper-studio/')
+    // invoke('get_changes', { repoPath: '/home/notnight/dev/beekeeper-studio/' });
   }
 };
 </script>

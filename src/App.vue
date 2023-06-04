@@ -1,17 +1,17 @@
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      Hello
-    </div>
-  </header>
-
-  <RouterView />
+  <div>
+    <commit-viewer></commit-viewer>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+<script lang="ts">
+import CommitViewer from './components/CommitViewer.vue'; 
+
+export default {
+  components: {
+    CommitViewer
+  }
+};
 </script>
 
 <style scoped>

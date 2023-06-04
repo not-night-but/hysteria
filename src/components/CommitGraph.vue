@@ -2,24 +2,12 @@
 	<svg v-if="dataLoaded" id="graph-svg" class="mx-0" :height="svgHeight" :width="`${svgWidth}px`">
 		<g>
 			<path v-for="branch of branches" :key="branch.id" :id="`branch-${branch.id}`" :d="drawBranch(branch)" fill="none"
-				:stroke="getBranchColour(branch)" stroke-width="2" :stroke-dasharray="getPathLength(branch.id)"
-				:stroke-dashoffset="getPathLength(branch.id)">
-				<animate attributeName="stroke-dashoffset" begin="1s" :dur="config.branchAnimationDuration" to="0"
-					fill="freeze" />
+				:stroke="getBranchColour(branch)" stroke-width="2">
 			</path>
 			<g v-for="vertex of vertexData">
-				<circle v-if="!vertex.isMerge" :data-id="vertex.id" :cx="vertex.cx" :cy="vertex.cy" :fill="vertex.colour">
-					<animate attribute-name="r" begin="1s" :dur="config.vertexAnimationDuration" :to="vertex.r" fill="freeze" />
+				<circle v-if="!vertex.isMerge" :data-id="vertex.id" :cx="vertex.cx" :cy="vertex.cy" :fill="vertex.colour" :r="vertex.r">
 				</circle>
-				<rect class="diamond">
-					<animate attribute-name="width" begin="1s" :dur="config.vertexAnimationDuration" :to="vertex.r * 2"
-						fill="freeze" />
-					<animate attribute-name="height" begin="1s" :dur="config.vertexAnimationDuration" :to="vertex.r * 2"
-						fill="freeze" />
-					<animate attribute-name="x" begin="1s" :dur="config.vertexAnimationDuration" :to="vertex.cx - vertex.r"
-						fill="freeze" />
-					<animate attribute-name="y" begin="1s" :dur="config.vertexAnimationDuration" :to="vertex.cy - vertex.r"
-						fill="freeze" />
+				<rect v-if="vertex.isMerge" class="diamond" :width="vertex.r * 2" :height="vertex.r * 2" :x="vertex.cx - vertex.r" :y="vertex.cy - vertex.r" :fill="vertex.colour ">
 				</rect>
 			</g>
 		</g>
@@ -34,6 +22,9 @@ import { Branch, PlacedLine, GraphConfig, VertexData, Vertex } from '../lib/grap
 
 export default {
 	data: () => {
+		return {
+			
+		}
 	},
 	computed: {
 		...mapState(useGitDataStore, {
@@ -43,10 +34,10 @@ export default {
 			return this.commitDatas.dataLoaded;
 		},
 		vertices(): Vertex[] {
-			return this.commitDatas.vertices;
+			return this.commitDatas.vertices as Vertex[];
 		},
 		branches(): Branch[] {
-			return this.commitDatas.branches;
+			return this.commitDatas.branches as Branch[];
 		},
 		config(): GraphConfig {
 			return this.commitDatas.config;
@@ -122,3 +113,11 @@ export default {
 }
 
 </script>
+
+<style scoped>
+	.diamond {
+    transform-box: fill-box; 
+    transform-origin: center; 
+    transform: rotate(45deg);	
+	}
+</style>
