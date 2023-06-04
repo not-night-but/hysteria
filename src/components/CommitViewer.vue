@@ -1,11 +1,11 @@
 <template>
-  <div class="htstack px-0">
+  <div class="viewer-wrapper">
     <div class="mx-0 row align-items-start flex-nowrap" style="overflow-x: hidden; width: 100%">
       <div class="px-0 col-auto">
         <commit-graph></commit-graph>
       </div>
       <div class="px-0">
-        <!-- Table -->
+        <commit-table></commit-table>
       </div>
     </div>
   </div>
@@ -14,11 +14,13 @@
 <script lang="ts">
 // import { invoke } from '@tauri-apps/api';
 import CommitGraph from './CommitGraph.vue';
-import { useGitDataStore } from '../stores/gitData'; 
+import CommitTable from './CommitTable.vue';
+import { useGitDataStore } from '../stores/gitData';
 
 export default {
   components: {
-    CommitGraph
+    CommitGraph,
+    CommitTable
   },
   mounted() {
     const store = useGitDataStore();
@@ -27,3 +29,11 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.viewer-wrapper {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+}
+</style>
