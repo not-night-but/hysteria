@@ -103,7 +103,7 @@ export class Branch {
     }
   }
 
-  public static getFurtherstX(): number {
+  public static getFurthestX(): number {
     return Branch.furthestX;
   }
 
@@ -127,6 +127,7 @@ interface UnavailablePoint {
 
 export class Vertex {
   public readonly id: number;
+  public readonly sha: string | null;
 
   private x: number = 0;
   private children: Vertex[] = [];
@@ -136,8 +137,12 @@ export class Vertex {
   private nextX: number = 0;
   private connections: UnavailablePoint[] = [];
 
-  constructor(id: number) {
+  constructor(id: number, sha?: string) {
     this.id = id;
+    this.sha = sha ?? null;
+    if (!this.sha && this.id !== NULL_VERTEX_ID) {
+      throw new Error('Non Null vertices must be initialised with a SHA');
+    }
   }
 
   public getX(): number {
@@ -215,14 +220,16 @@ export class VertexData {
   public readonly r: number;
   public readonly colour: string;
   public readonly isMerge: boolean;
+  public readonly sha: string;
 
-  constructor(id: number, cx: number, cy: number, r: number, colour: string, isMerge: boolean) {
+  constructor(id: number, cx: number, cy: number, r: number, colour: string, isMerge: boolean, sha: string) {
     this.id = id;
     this.cx = cx;
     this.cy = cy;
     this.r = r;
     this.colour = colour;
     this.isMerge = isMerge;
+    this.sha = sha;
   }
 }
 

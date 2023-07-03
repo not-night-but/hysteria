@@ -1,13 +1,17 @@
 <template>
-	<svg v-if="dataLoaded" id="graph-svg" class="mx-0" :height="svgHeight" :width="`${svgWidth}px`">
+	<svg v-if="dataLoaded" id="graph-svg" :height="svgHeight" :width="`${svgWidth}px`">
 		<g>
-			<path v-for="branch of branches" :key="branch.id" :id="`branch-${branch.id}`" :d="drawBranch(branch)" fill="none"
-				:stroke="getBranchColour(branch)" stroke-width="2">
+			<path v-for="branch of branches" :key="branch.id" :id="`branch-${branch.id}`" :d="drawBranch(branch as Branch)"
+				fill="none" :stroke="getBranchColour(branch as Branch)" stroke-width="2">
 			</path>
 			<g v-for="vertex of vertexData">
-				<circle v-if="!vertex.isMerge" :data-id="vertex.id" :cx="vertex.cx" :cy="vertex.cy" :fill="vertex.colour" :r="vertex.r">
+				<circle v-if="!vertex.isMerge" :data-id="vertex.id" :cx="vertex.cx" :cy="vertex.cy" :fill="vertex.colour"
+					:r="vertex.sha === selectedCommit ? vertex.r * 2 : vertex.r">
 				</circle>
-				<rect v-if="vertex.isMerge" class="diamond" :width="vertex.r * 2" :height="vertex.r * 2" :x="vertex.cx - vertex.r" :y="vertex.cy - vertex.r" :fill="vertex.colour ">
+				<rect v-if="vertex.isMerge" class="diamond" :width="vertex.r * (vertex.sha === selectedCommit ? 3 : 2)"
+					:height="vertex.r * (vertex.sha === selectedCommit ? 3 : 2)"
+					:x="vertex.cx - vertex.r * (vertex.sha === selectedCommit ? 1.5 : 1)"
+					:y="vertex.cy - vertex.r * (vertex.sha === selectedCommit ? 1.5 : 1)" :fill="vertex.colour">
 				</rect>
 			</g>
 		</g>
@@ -16,61 +20,56 @@
 
 <script lang="ts">
 import { useGitDataStore } from '../stores/gitData';
-import { mapState } from 'pinia';
-import { Branch, PlacedLine, GraphConfig, VertexData, Vertex } from '../lib/graph/classes';
+import { mapState, mapActions } from 'pinia';
+import { Branch, PlacedLine, VertexData, Vertex } from '../lib/graph/classes';
+import { useAppStore } from '../stores/app';
 
 
 export default {
 	data: () => {
 		return {
-			
+
 		}
 	},
 	computed: {
 		...mapState(useGitDataStore, {
-			commitDatas: 'commitDatas'
+			dataLoaded: 'dataLoaded',
+			vertices: 'vertices',
+			branches: 'branches',
+			config: 'config',
+			svgHeight: 'svgHeight',
+			svgWidth: 'svgWidth'
 		}),
-		dataLoaded(): boolean {
-			return this.commitDatas.dataLoaded;
-		},
-		vertices(): Vertex[] {
-			return this.commitDatas.vertices as Vertex[];
-		},
-		branches(): Branch[] {
-			return this.commitDatas.branches as Branch[];
-		},
-		config(): GraphConfig {
-			return this.commitDatas.config;
-		},
-		svgHeight(): number {
-			return this.commitDatas.svgHeight;
-		},
-		svgWidth(): number {
-			return this.commitDatas.svgWidth;
-		},
+		...mapState(useAppStore, {
+			selectedCommit: 'selectedCommitId'
+		}),
 		vertexData(): VertexData[] {
 			if (this.vertices === null || this.config === null) return [];
-			return this.vertices.filter((vertex: Vertex) => vertex.isOnBranch()).map((vertex: Vertex) => {
+			return (this.vertices as Vertex[]).filter((vertex: Vertex) => vertex.isOnBranch()).map((vertex: Vertex) => {
 				const id: number = vertex.id;
 				const cx: number = vertex.getX() * this.config.x + this.config.offsetX;
 				const cy: number = vertex.id * this.config.y + this.config.offsetY;
 				const r: number = 4;
 				const colour: string = this.config.colours[vertex.getBranch()?.getColour() as number % this.config.colours.length] as string;
 
-				return new VertexData(id, cx, cy, r, colour, vertex.isMerge());
+				return new VertexData(id, cx, cy, r, colour, vertex.isMerge(), vertex.sha as string);
 			});
 		},
 	},
 	methods: {
+		...mapActions(useGitDataStore, ['updateFurthestX']),
 		drawBranch(branch: Branch) {
 			if (this.config === null) return '';
 			const d = this.config.y * 0.8;
-			let lines = branch.getLines().map(x => {
-				const p1 = x.p1.toPixel(this.config);
-				const p2 = x.p2.toPixel(this.config);
+			let lines = branch.getLines().map(line => {
+				this.updateFurthestX(line.p1.y, line.p1.x);
+				this.updateFurthestX(line.p2.y, line.p2.x);
+				const p1 = line.p1.toPixel(this.config);
+				const p2 = line.p2.toPixel(this.config);
 				return new PlacedLine(p1, p2);
 			});
 
+			// if multiple lines are in a row, extend them into one long line.
 			let i = 0;
 			while (i < lines.length - 1) {
 				let line = lines[i];
@@ -115,9 +114,13 @@ export default {
 </script>
 
 <style scoped>
-	.diamond {
-    transform-box: fill-box; 
-    transform-origin: center; 
-    transform: rotate(45deg);	
-	}
+#graph-svg {
+	padding-top: 28px;
+}
+
+.diamond {
+	transform-box: fill-box;
+	transform-origin: center;
+	transform: rotate(45deg);
+}
 </style>

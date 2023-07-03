@@ -1,12 +1,10 @@
 <template>
   <div class="viewer-wrapper">
-    <div class="mx-0 row align-items-start flex-nowrap" style="overflow-x: hidden; width: 100%">
-      <div class="px-0 col-auto">
-        <commit-graph></commit-graph>
-      </div>
-      <div class="px-0">
-        <commit-table></commit-table>
-      </div>
+    <div class="graph-wrapper">
+      <commit-graph></commit-graph>
+    </div>
+    <div class="table-wrapper">
+      <commit-table></commit-table>
     </div>
   </div>
 </template>
@@ -30,10 +28,19 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .viewer-wrapper {
   display: flex;
   flex-direction: row;
   padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+
+  .table-wrapper {
+    margin-top: 28px;
+    width: 100%;
+
+    overflow: visible;
+  }
 }
 </style>
