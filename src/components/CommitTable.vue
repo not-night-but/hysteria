@@ -2,13 +2,21 @@
   <!-- TODO We need to set the width dynamically based on the viewport width - the svg width -->
   <div v-for="(commit, i) in commits" @click="commit_onClick(commit)" class="commit-entry"
     :style="{ 'background': commit.sha === clickedId ? getColour((vertices as Vertex[])?.at(i)) : '', 'margin-left': `-${getLeftMargin(i)}px` }">
-    <span :style="{ 'width': `${500 + getLeftMargin(i)}px` }"> {{ commit.subject }} </span>
-    <span>
+    <div :style="{ 'width': `${500 + getLeftMargin(i)}px` }">
+      {{ commit.subject }}
+    </div>
+    <div class="author-avatar">
       <img :src="getUserAvatar(commit.author?.email)" alt="avatar">
+    </div>
+    <div>
       {{ commit.author?.name }}
-    </span>
-    <span> {{ commit.sha?.substring(0, 7) }} </span>
-    <span>{{ commit.date }}</span>
+    </div>
+    <div>
+      {{ commit.sha?.substring(0, 7) }}
+    </div>
+    <div>
+      {{ commit.date }}
+    </div>
   </div>
 </template>
 
@@ -89,13 +97,13 @@ export default {
 .commit-entry {
   transition: all 0.2s ease-in-out;
   font-size: 0.8rem;
-  line-height: 24px;
-  padding: 0;
+  padding: 0 0 0 5px;
   height: 24px;
   overflow: hidden;
   white-space: nowrap;
+  border-radius: 5px;
 
-  span {
+  div {
     display: inline-block;
   }
 
@@ -107,16 +115,14 @@ export default {
   td {
     border: none;
   }
-}
 
-.author-avatar {
-  padding: 0;
-  display: flex;
-  align-items: center;
-
-  img {
-    display: block;
-    margin: auto;
+  .author-avatar {
+    img {
+      position: relative;
+      top: 3px;
+      border-radius: 2px;
+      margin: 0 3px 0 0;
+    }
   }
 }
 </style>

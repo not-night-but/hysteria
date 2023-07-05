@@ -166,10 +166,7 @@ export const useGitDataStore = defineStore('gitData', {
     },
     getLeftMargin(y: number): number {
       const x = this.furthestX.get(y) ?? 0;
-      if (y < 25)
-        console.log('X: %d, Y: %d',x, y)
-      console.log(this.config.offsetX)
-      return this.svgWidth - ((x + 1) * this.config.x + this.config.offsetX);
+      return this.svgWidth - ((x + 1) * this.config.x + this.config.offsetX) + 5;
     }
   }
 })
