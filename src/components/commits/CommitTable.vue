@@ -22,10 +22,10 @@
 
 <script lang="ts">
 import { mapActions, mapState } from 'pinia';
-import { useGitDataStore } from '../stores/gitData';
-import { BranchData, Commit, Vertex } from '../lib/graph/classes';
+import { BranchData, Commit, Vertex } from '@/lib/graph/classes';
 import { Md5 } from 'ts-md5';
-import { useAppStore } from '../stores/app';
+import { useGitDataStore } from '@/stores/gitData';
+import { useAppStore } from '@/stores/app';
 
 export default {
   data() {
@@ -53,7 +53,7 @@ export default {
     },
     branchesMap() {
       if (this.commits.length > 0) {
-        return new Map(this.branches?.map(branch => [this.commits.findIndex(commit => commit.sha === branch.tip_id), branch]));
+        return new Map(this.branches?.map((branch: BranchData) => [this.commits.findIndex((commit: Commit) => commit.sha === branch.tip_id), branch]));
       } else {
         return new Map();
       }

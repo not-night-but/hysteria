@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import CommitViewer from './components/CommitViewer.vue';
+import CommitViewer from './components/commits/CommitViewer.vue';
 
 export default {
   components: {
@@ -14,7 +14,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss">
+@import 'assets/styles/app.scss';
+
 .app {
   margin: 0;
   padding: 0;

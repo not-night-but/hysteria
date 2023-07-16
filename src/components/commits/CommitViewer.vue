@@ -13,7 +13,7 @@
 // import { invoke } from '@tauri-apps/api';
 import CommitGraph from './CommitGraph.vue';
 import CommitTable from './CommitTable.vue';
-import { useGitDataStore } from '../stores/gitData';
+import { useGitDataStore } from '@/stores/gitData';
 
 export default {
   components: {

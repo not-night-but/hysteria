@@ -19,10 +19,10 @@
 </template>
 
 <script lang="ts">
-import { useGitDataStore } from '../stores/gitData';
+import { useGitDataStore } from '@/stores/gitData';
 import { mapState, mapActions } from 'pinia';
-import { Branch, PlacedLine, VertexData, Vertex } from '../lib/graph/classes';
-import { useAppStore } from '../stores/app';
+import { Branch, PlacedLine, VertexData, Vertex } from '@/lib/graph/classes';
+import { useAppStore } from '@/stores/app';
 
 
 export default {
