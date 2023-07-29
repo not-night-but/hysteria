@@ -13,19 +13,16 @@ export const useGitDataStore = defineStore('gitData', {
     svgHeight: 0,
     svgWidth: 0,
     availableColours: new Array<number>,
-    branchesMap: new Map<string, BranchData[]>(),
-    currentRepo: '',
+    repoBranches: new Array<BranchData>(),
     furthestX: new Map<number, number>()
   }),
   getters: {
   },
   actions: {
-    async fetch(repoPath?: string): Promise<void> {
-      repoPath = repoPath ?? this.currentRepo;
+    async fetch(repoPath: string): Promise<void> {
       await invoke('fetch_origin', { repoPath });
     },
-    async loadCommits(repoPath?: string): Promise<void> {
-      repoPath = repoPath ?? this.currentRepo;
+    async loadCommits(repoPath: string): Promise<void> {
       const rawData = await invoke('get_commits', { repoPath }).catch((err) => {
         console.error(err);
       });
@@ -68,18 +65,18 @@ export const useGitDataStore = defineStore('gitData', {
 
       this.svgHeight = this.vertices.length * this.config.y + this.config.offsetY - this.config.y / 2;
       this.svgWidth = 2 * this.config.offsetX + (Branch.getFurthestX() * this.config.x);
+
       this.dataLoaded = true;
     },
-    async loadRepoBranches(repoPath?: string): Promise<void> {
-      repoPath = repoPath ?? this.currentRepo;
-
+    async loadRepoBranches(repoPath: string): Promise<void> {
       const data: BranchData[] = await invoke('get_repo_branches', { repoPath }).catch((err) => {
         console.error(err);
       }) as BranchData[];
 
-      this.branchesMap.set(repoPath, data);
+      this.repoBranches = data;
     },
-    async loadRepo(repoPath?: string): Promise<void> {
+    async loadRepo(repoPath: string): Promise<void> {
+      this.$reset();
       await this.loadCommits(repoPath);
       await this.loadRepoBranches(repoPath);
 

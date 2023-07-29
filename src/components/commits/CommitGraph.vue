@@ -1,5 +1,5 @@
 <template>
-	<svg v-if="dataLoaded" id="graph-svg" :height="svgHeight" :width="`${svgWidth}px`">
+	<svg id="graph-svg" :height="svgHeight" :width="`${svgWidth}px`">
 		<g>
 			<path v-for="branch of branches" :key="branch.id" :id="`branch-${branch.id}`" :d="drawBranch(branch as Branch)"
 				fill="none" :stroke="getBranchColour(branch as Branch)" stroke-width="2">
@@ -33,7 +33,6 @@ export default {
 	},
 	computed: {
 		...mapState(useGitDataStore, {
-			dataLoaded: 'dataLoaded',
 			vertices: 'vertices',
 			branches: 'branches',
 			config: 'config',
@@ -114,10 +113,6 @@ export default {
 </script>
 
 <style scoped>
-#graph-svg {
-	padding-top: 28px;
-}
-
 .diamond {
 	transform-box: fill-box;
 	transform-origin: center;

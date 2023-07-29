@@ -3,6 +3,7 @@ use git2::{Repository, Sort, Time};
 use std::{cell::RefCell, fs::File, rc::Rc};
 use time::{format_description, OffsetDateTime};
 
+// TODO (@day): move to models.rs
 #[derive(serde::Serialize, serde::Deserialize, Default)]
 pub struct Commit {
     subject: String,
@@ -34,7 +35,6 @@ pub fn get_commits(repo_path: String) -> Result<Vec<Commit>, Error> {
         let captured_err = err.clone();
         let commits = revwalk.take(500).map(|oid| {
             if let Ok(oid) = oid {
-                // println!("Found commit {}", oid.clone());
                 let commit = repo.find_commit(oid).unwrap();
                 let subject = commit.summary().unwrap();
                 let body = commit.body().unwrap_or("");

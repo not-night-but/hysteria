@@ -1,0 +1,123 @@
+@import './_variables.scss';
+
+.material-icons {
+  margin: auto;
+  color: $hys-text-dark-1;
+}
+
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  height: 2rem;
+  margin: 0 0.25rem 0 0.25rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  text-decoration: inherit;
+  text-align: center;
+
+  &.btn-primary {
+    background: $btn-primary;
+
+    &:hover {
+      background: darken($btn-primary, 10%);
+    }
+  }
+
+  &.btn-secondary {
+    background: $btn-secondary;
+
+    &:hover {
+      background: darken($btn-secondary, 10%);
+    }
+  }
+
+  &.btn-flat {
+    background: darken($btn-secondary, 40%);
+    color: $hys-text-dark-1;
+
+    &:hover {
+      background: darken($btn-secondary, 41%);
+    }
+  }
+
+  &.btn-danger {
+    background: $btn-danger;
+
+    &:hover {
+      background: darken($btn-danger, 10%);
+    }
+  }
+
+  &.btn-hover-danger {
+    background: $btn-secondary;
+
+    &:hover {
+      background: darken($btn-danger, 10%);
+    }
+  }
+
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+
+  > .form-control {
+    position: relative;
+    flex: 1 1 0%;
+    min-width: 0;
+    margin-bottom: 0;
+
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  .input-group-append {
+    margin-left: -5px;
+    display: flex;
+
+    > .btn {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    &.not-last > .btn {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+.form-control {
+  position: relative;
+  display: flex;
+  height: $input-height;
+  padding: 0 0.75rem;
+  font-size: 0.9rem;
+  font-weight: normal;
+  line-height: $input-height;
+  color: $hys-text-dark-1;
+  background: transparent;
+  border-radius: $input-radius;
+  border: 1px solid $color-border;
+  outline: none;
+  box-shadow: none;
+  width: 100%;
+  transition: border-color 0.15s ease-in-out;
+
+  &:has(> .input-group-append) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+}
