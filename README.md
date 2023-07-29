@@ -1,27 +1,6 @@
 # Hysteria
+Just a project I'm working on in my free time (mostly just on weekends and some nights). My is goal just to make a git client that I like using that is cross platform (lazygit is fantastic but I don't always want to be in the terminal for everything I do with git).
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.0.3.
+I'd also like to have closer integration with GitHub (viewing repository issues, pull requests, collaborators, etc.)
 
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+This is currently being developed with Rust, Tauri, Vue, Typescript, and SCSS
