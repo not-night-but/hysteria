@@ -8,24 +8,25 @@
     <div class="author-avatar">
       <img :src="getUserAvatar(commit.author?.email)" alt="avatar">
     </div>
-    <div>
-      {{ commit.author?.name }}
+    <div class="author-name">
+      <div>{{ commit.author?.name }}</div>
     </div>
-    <div>
+    <div class="commit-id">
       {{ commit.sha?.substring(0, 7) }}
     </div>
-    <div>
-      {{ commit.date }}
+    <div class="commit-date">
+      {{ formatDate(commit.date as Date) }}
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { mapActions, mapState } from 'pinia';
-import { useGitDataStore } from '../stores/gitData';
-import { BranchData, Commit, Vertex } from '../lib/graph/classes';
+import { BranchData, Commit, Vertex } from '@/lib/graph/classes';
 import { Md5 } from 'ts-md5';
-import { useAppStore } from '../stores/app';
+import { useGitDataStore } from '@/stores/gitData';
+import { useAppStore } from '@/stores/app';
+import dateFormat from 'dateformat';
 
 export default {
   data() {
@@ -35,9 +36,7 @@ export default {
   },
   computed: {
     ...mapState(useGitDataStore, {
-      dataBranchesMap: 'branchesMap',
-      currentRepo: 'currentRepo',
-      dataLoaded: 'dataLoaded',
+      repoBranches: 'repoBranches',
       commitData: 'commitData',
       vertices: 'vertices',
       config: 'config'
@@ -49,11 +48,11 @@ export default {
       return this.config.colours;
     },
     branches() {
-      return this.dataBranchesMap?.get(this.currentRepo);
+      return this.repoBranches;
     },
     branchesMap() {
       if (this.commits.length > 0) {
-        return new Map(this.branches?.map(branch => [this.commits.findIndex(commit => commit.sha === branch.tip_id), branch]));
+        return new Map(this.branches?.map((branch: BranchData) => [this.commits.findIndex((commit: Commit) => commit.sha === branch.tip_id), branch]));
       } else {
         return new Map();
       }
@@ -79,6 +78,9 @@ export default {
     getBranchTag(data: BranchData | undefined): string {
       if (data === undefined) return '';
       return data.name;
+    },
+    formatDate(date: Date) {
+      return dateFormat(date, 'UTC:dd/mm/yy HH:MM Z')
     }
   }
 };
@@ -112,10 +114,6 @@ export default {
     background: hsl(0, 0%, 12%);
   }
 
-  td {
-    border: none;
-  }
-
   .author-avatar {
     img {
       position: relative;
@@ -123,6 +121,26 @@ export default {
       border-radius: 2px;
       margin: 0 3px 0 0;
     }
+  }
+
+  .author-name {
+    min-width: 150px;
+    max-width: 150px;
+    padding-right: 10px;
+    height: 24px;
+
+    div {
+      display: inline-block;
+      max-width: 140px;
+      height: 24px;
+      width: 140px;
+      overflow: hidden;
+      vertical-align: middle;
+    }
+  }
+
+  .commit-id {
+    min-width: 60px;
   }
 }
 </style>

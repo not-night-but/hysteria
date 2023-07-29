@@ -1,0 +1,49 @@
+$font-family:         'Roboto';
+$font-family-mono:    'Source Code Pro';
+
+$hys-white:               #ffffff;
+$hys-white-soft:          #f8f8f8;
+$hys-white-softer:        #f2f2f2;
+
+$hys-black:           #000000;
+$hys-black-soft:      #181818;
+$hys-black-softer:    #2a2a2a;
+
+$hys-indigo:          #2c3e50;
+
+$hys-divider-light-1: rgba(60, 60, 60, 0.29);
+$hys-divider-light-2: rgba(60, 60, 60, 0.12);
+$hys-divider-dark-1: rgba(84, 84, 84, 0.65);
+$hys-divider-dark-2: rgba(84, 84, 84, 0.48);
+
+$hys-text-light-1: $hys-indigo;
+$hys-text-light-2: rgba(60, 60, 60, 0.66);
+$hys-text-dark-1: $hys-white;
+$hys-text-dark-2: rgba(235, 235, 235, 0.64);
+
+$brand-info: #74ccfc;
+$brand-danger: #eb6d5d;
+$brand-warning: #ef9536;
+$brand-success: #68d699;
+
+$btn-primary: $hys-white;
+$btn-secondary: darken($hys-white, 40%);
+$btn-danger: $brand-danger;
+
+$hys-bg: $hys-black;
+$hys-bg-soft: $hys-black-soft;
+$hys-bg-softer: $hys-black-softer;
+
+$color-border: $hys-divider-dark-2;
+$color-border-hover: $hys-divider-dark-1;
+
+$color-heading: $hys-text-dark-1;
+$color-text: $hys-text-dark-1;
+
+$section-gap: 160px;
+
+$topbar-height: 4rem;
+$sidebar-width: 3rem;
+
+$input-height: 2rem;
+$input-radius: 6px;

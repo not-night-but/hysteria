@@ -39,7 +39,6 @@
         "signingIdentity": null
       },
       "resources": [
-        "assets/*"
       ],
       "shortDescription": "",
       "targets": "all",
