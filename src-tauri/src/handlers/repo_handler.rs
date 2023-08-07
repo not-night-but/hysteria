@@ -1,4 +1,4 @@
-use crate::{error::Error, models::Repo, AppState};
+use crate::{error::Error, models::app::Repo, AppState};
 use git2::{BranchType, Repository};
 use tauri::State;
 

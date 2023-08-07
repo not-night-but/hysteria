@@ -50,6 +50,7 @@ export const useGitDataStore = defineStore('gitData', {
             this.vertices[this.commitMap.get(parent) as number].addChild(this.vertices[i] as Vertex);
           } else {
             this.vertices[i].addParent(nullVertex);
+            console.log('NULL VERTEX PARENT')
           }
         });
       });
@@ -91,7 +92,6 @@ export const useGitDataStore = defineStore('gitData', {
       let lastPoint = !vertex.isOnBranch() ? vertex.getNextPoint() : vertex.getPoint();
       let curPoint;
 
-      // this.updateFurthestX(lastPoint.y, lastPoint.x);
       if (parentVertex !== null && parentVertex.id !== NULL_VERTEX_ID && vertex.isMerge() && vertex.isOnBranch() && parentVertex.isOnBranch()) {
         // Branch is a merge between two vertices already on branches
         let foundPointToParent = false, parentBranch = parentVertex.getBranch()!;
@@ -104,7 +104,6 @@ export const useGitDataStore = defineStore('gitData', {
             curPoint = curVertex.getNextPoint(); // Parent couldn't be found, choose the next available point for the vertex
           }
           parentBranch.addLine(lastPoint, curPoint);
-          // this.updateFurthestX(lastPoint.y, curPoint.x);
           curVertex.registerUnavailablePoint(curPoint.x, parentVertex, parentBranch);
           lastPoint = curPoint;
 
@@ -121,7 +120,6 @@ export const useGitDataStore = defineStore('gitData', {
         for (i = index + 1; i < this.vertices.length; i++) {
           curVertex = this.vertices[i];
           curPoint = parentVertex === curVertex && parentVertex.isOnBranch() ? curVertex.getPoint() : curVertex.getNextPoint();
-          // this.updateFurthestX(lastPoint.y, curPoint.x);
           branch.addLine(lastPoint, curPoint);
           curVertex.registerUnavailablePoint(curPoint.x, parentVertex, branch);
           lastPoint = curPoint;

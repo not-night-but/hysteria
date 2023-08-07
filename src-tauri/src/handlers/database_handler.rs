@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use rusqlite::{params, Connection, Params};
 use rusqlite_migration::Migrations;
 
-use crate::{error::Error, models::Repo};
+use crate::{error::Error, models::app::Repo};
 
 pub struct DbConnection {
     conn: Connection,

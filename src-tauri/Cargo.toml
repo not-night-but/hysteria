@@ -24,6 +24,7 @@ time = { version = "0.3.11", features = ["formatting"] }
 rusqlite_migration = { git = "https://github.com/cljoly/rusqlite_migration.git", tag = "v1.1.0-alpha.2", features = ["from-directory"] }
 include_dir = "0.7.3"
 lazy_static = "1.4.0"
+ambassador = "0.3.5"
 
 [features]
 # by default Tauri runs in production mode
