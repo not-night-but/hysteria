@@ -22,21 +22,29 @@ pub struct BranchSvgProps {
     pub colour: String,
     pub column: Option<usize>,
     pub lines: Vec<Line>,
-    pub points: Vec<Point>,
+    pub vertices: Vec<Vertex>,
 }
 
+// represents an svg line
 #[derive(Default)]
 pub struct Line {
     pub start: Point,
     pub end: Point,
 }
 
+// represents the start or end of a line
 #[derive(Default)]
 pub struct Point {
     pub x: u32,
     pub y: u32,
-    pub commit_id: Option<String>,
-    pub is_commit: bool,
+}
+
+// represents the commit 'dot' on a graph
+#[derive(Default)]
+pub struct Vertex {
+    pub x: u32,
+    pub y: u32,
+    pub commit_id: String,
     pub is_merge: bool,
 }
 
@@ -78,7 +86,23 @@ impl BranchSvgProps {
             colour,
             column: None,
             lines: Vec::new(),
-            points: Vec::new(),
+            vertices: Vec::new(),
         }
+    }
+
+    pub fn add_line(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
+        let start = Point { x: x1, y: y1 };
+        let end = Point { x: x2, y: y2 };
+
+        self.lines.push(Line { start, end });
+    }
+
+    pub fn add_vertex(&mut self, x: u32, y: u32, commit_id: String, is_merge: bool) {
+        self.vertices.push(Vertex {
+            x,
+            y,
+            commit_id,
+            is_merge,
+        });
     }
 }

@@ -2,6 +2,8 @@ use git2::{Oid, Repository};
 
 use crate::error::Error;
 
+use super::branch::{Point, Vertex};
+
 pub struct Commit {
     pub oid: Oid,
     pub is_merge: bool,
@@ -14,6 +16,8 @@ pub struct Commit {
 
     // for drawing things
     next_parent: usize,
+    point: Option<Point>,
+    connections: Vec<Point>,
 }
 
 // TODO (@day): maybe move this elsewhere?
@@ -39,6 +43,14 @@ impl Commit {
     }
     pub fn parent_processed(&mut self) -> () {
         self.next_parent += 1;
+    }
+
+    pub fn register_point(&mut self, point: Point) {
+        self.point = Some(point);
+    }
+
+    pub fn add_connection(&mut self, connection: Point) {
+        self.connections.push(connection);
     }
 }
 

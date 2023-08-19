@@ -50,7 +50,6 @@ export const useGitDataStore = defineStore('gitData', {
             this.vertices[this.commitMap.get(parent) as number].addChild(this.vertices[i] as Vertex);
           } else {
             this.vertices[i].addParent(nullVertex);
-            console.log('NULL VERTEX PARENT')
           }
         });
       });
