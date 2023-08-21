@@ -2,11 +2,12 @@ use std::collections::{HashMap, HashSet};
 
 use ambassador::{delegatable_trait, Delegate};
 use git2::{BranchType, Oid, Repository, Sort};
+use serde::ser::SerializeStruct;
 
 use crate::{error::Error, models::branch::BranchSvgProps};
 
 use super::{
-    branch::Branch,
+    branch::{Branch, Point},
     commit::{Commit, Head},
 };
 
@@ -16,20 +17,22 @@ const ORIGIN: &str = "origin/";
 pub trait Draw {
     fn draw(
         &self,
-        commits: &Vec<Commit>,
+        commits: &mut Vec<Commit>,
         all_branches: &mut Vec<Branch>,
         indices: &HashMap<Oid, usize>,
         branches: &Vec<usize>,
     );
 }
 
+#[derive(Default)]
 pub struct GitGraphDraw {}
+#[derive(Default)]
 pub struct GitExtDraw {}
 
 impl Draw for GitGraphDraw {
     fn draw(
         &self,
-        commits: &Vec<Commit>,
+        commits: &mut Vec<Commit>,
         all_branches: &mut Vec<Branch>,
         indices: &HashMap<Oid, usize>,
         branches: &Vec<usize>,
@@ -41,7 +44,7 @@ impl Draw for GitGraphDraw {
 impl Draw for GitExtDraw {
     fn draw(
         &self,
-        commits: &Vec<Commit>,
+        commits: &mut Vec<Commit>,
         all_branches: &mut Vec<Branch>,
         // TODO (day): do we need these?
         indices: &HashMap<Oid, usize>,
@@ -49,7 +52,7 @@ impl Draw for GitExtDraw {
     ) {
         let mut unavailable_points: HashMap<usize, u32> = HashMap::new();
         let mut branches_commits: HashMap<usize, Vec<Oid>> = HashMap::new();
-        for commit in commits {
+        for commit in commits.iter() {
             if let Some(trace) = commit.branch_trace {
                 if branches_commits.get(&trace).is_none() {
                     branches_commits.insert(trace, vec![]);
@@ -67,47 +70,111 @@ impl Draw for GitExtDraw {
                 for oid in branch_commits {
                     // TODO (@day): this could be dangerous, but it shouldn't be possible to get an oid we aren't tracking
                     let index = indices.get(oid).unwrap();
-                    let vertex_x = unavailable_points.get(index).unwrap_or(&0u32);
-                    let commit = &commits[index.clone()];
+                    let vertex_x = unavailable_points.get(index).unwrap_or(&0u32).clone();
+                    let commit = &mut commits[index.clone()];
                     // add the dot for the commit
                     branch.svg_props.add_vertex(
-                        *vertex_x,
+                        vertex_x,
                         index.clone() as u32,
                         commit.oid.to_string(),
                         commit.is_merge,
                     );
+                    commit.register_point(Point {
+                        x: vertex_x,
+                        y: index.clone() as u32,
+                    });
+                    let commit = commits[index.clone()].clone();
                     // first parent is on the same branch (hopefully), draw a line to it
                     if let Some(first_parent) = commit.parents[0] {
                         if let Some(par_idx) = indices.get(&first_parent) {
                             let mut last_x: Option<u32> = None;
+                            let parent = &mut commits[*par_idx];
 
-                            for curr_y in *index..=*par_idx {
-                                if unavailable_points.get(&curr_y).is_none() {
-                                    unavailable_points.insert(curr_y, 0);
+                            if parent.branch_trace == commit.branch_trace {
+                                for curr_y in *index..=*par_idx {
+                                    if unavailable_points.get(&curr_y).is_none() {
+                                        unavailable_points.insert(curr_y, 0);
+                                    }
+                                    let curr_x = *unavailable_points.get(&curr_y).unwrap_or(&0u32);
+                                    if let Some(last_x) = last_x {
+                                        branch.svg_props.add_line(
+                                            last_x,
+                                            (curr_y - 1) as u32,
+                                            curr_x,
+                                            curr_y as u32,
+                                        );
+                                    }
+                                    last_x = Some(curr_x);
+                                    // a point has been placed at the current y, so we increment the x counter
+                                    if curr_y != *par_idx {
+                                        if let Some(x) = unavailable_points.get_mut(&curr_y) {
+                                            *x += 1;
+                                        }
+                                    }
                                 }
-                                let curr_x = *unavailable_points.get(&curr_y).unwrap_or(&0u32);
-                                if let Some(last_x) = last_x {
-                                    branch.svg_props.add_line(
-                                        last_x,
-                                        (curr_y - 1) as u32,
-                                        curr_x,
-                                        curr_y as u32,
-                                    );
-                                }
-                                last_x = Some(curr_x);
-                                // a point has been placed at the current y, so we increment the x counter
-                                if let Some(x) = unavailable_points.get_mut(&curr_y) {
-                                    *x += 1;
-                                }
+                            } else {
+                                parent.add_connection(Point {
+                                    x: vertex_x,
+                                    y: index.clone() as u32,
+                                });
                             }
                         }
                     }
                     // create connection to other branch if the other parent exists
+                    for p in 1..commit.parents.len() {
+                        if let Some(par_oid) = &commit.parents[p] {
+                            if let Some(par_idx) = indices.get(par_oid) {
+                                let parent = &mut commits[*par_idx];
+                                parent.add_connection(Point {
+                                    x: vertex_x,
+                                    y: index.clone() as u32,
+                                });
+                            }
+                        }
+                    }
                 }
             }
         }
 
         // walk through commits drawing lines for connections
+        for branch_idx in branches {
+            let branch = &mut all_branches[*branch_idx];
+            if let Some(branch_commits) = branches_commits.get(branch_idx) {
+                let mut last_x: Option<u32> = None;
+                for oid in branch_commits {
+                    let index = indices.get(oid).unwrap();
+                    let commit = &commits[*index];
+                    for connection in &commit.connections {
+                        if let Some(point) = &commit.point {
+                            if point.y - connection.y > 1 {
+                                for curr_y in point.y..=connection.y {
+                                    if unavailable_points.get(&(curr_y as usize)).is_none() {
+                                        unavailable_points.insert(curr_y as usize, 0);
+                                    }
+                                    let curr_x = *unavailable_points
+                                        .get(&(curr_y as usize))
+                                        .unwrap_or(&0u32);
+
+                                    if let Some(last_x) = last_x {
+                                        branch.svg_props.add_line(
+                                            last_x,
+                                            curr_y - 1,
+                                            curr_x,
+                                            curr_y,
+                                        );
+                                    }
+                                    last_x = Some(curr_x);
+                                }
+                            } else {
+                                branch
+                                    .svg_props
+                                    .add_line_from_points(connection.clone(), point.clone());
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -119,7 +186,6 @@ pub enum DrawType {
 }
 
 pub struct RepoData {
-    repository: Repository,
     pub commits: Vec<Commit>,
     pub indices: HashMap<Oid, usize>,
     pub all_branches: Vec<Branch>,
@@ -127,6 +193,33 @@ pub struct RepoData {
     pub tags: Vec<usize>,
     pub head: Head,
     pub stashes: HashSet<Oid>,
+}
+
+impl serde::Serialize for RepoData {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("RepoData", 7)?;
+        state.serialize_field("commits", &self.commits)?;
+        let mut indices = HashMap::new();
+        for oid in self.indices.keys() {
+            if let Some(value) = self.indices.get(oid) {
+                indices.insert(oid.to_string(), value);
+            }
+        }
+        state.serialize_field("indices", &indices)?;
+        state.serialize_field("all_branches", &self.all_branches)?;
+        state.serialize_field("branches", &self.branches)?;
+        state.serialize_field("tags", &self.tags)?;
+        state.serialize_field("head", &self.head)?;
+        let mut stashes = HashSet::new();
+        for stash in self.stashes.iter() {
+            stashes.insert(stash.to_string());
+        }
+        state.serialize_field("stashes", &stashes)?;
+        state.end()
+    }
 }
 
 impl RepoData {
@@ -176,7 +269,7 @@ impl RepoData {
         // TODO (@day): something here needs to change depending on if we're using gitext drawing or gitgraph drawing
         Self::assign_branch_columns(&commits, &indices, &mut all_branches, false, true);
 
-        let filtered_commits: Vec<Commit> = commits
+        let mut filtered_commits: Vec<Commit> = commits
             .into_iter()
             .filter(|commit| commit.branch_trace.is_some())
             .collect();
@@ -235,14 +328,13 @@ impl RepoData {
             .collect();
 
         draw_type.draw(
-            &filtered_commits,
+            &mut filtered_commits,
             &mut all_branches,
             &filtered_indices,
             &branches,
         );
 
         Ok(RepoData {
-            repository: repo,
             commits: filtered_commits,
             indices: filtered_indices,
             all_branches,
@@ -356,7 +448,7 @@ impl RepoData {
         indices: &HashMap<Oid, usize>,
     ) -> Result<Vec<Branch>, Error> {
         // TODO (@day): we need settings at some point to choose whether we want local, remote, or both
-        let filter = Some(BranchType::Local);
+        let filter = None;
 
         let mut counter = 0;
         let existing_branches = repo.branches(filter)?.collect::<Result<Vec<_>, _>>()?;
@@ -646,7 +738,7 @@ impl RepoData {
             let len = group_occ.len();
             let mut found = len;
             for i in 0..len {
-                let index = if align_right { len - i - 1 } else { 1 };
+                let index = if align_right { len - i - 1 } else { i };
                 let column_occ = &group_occ[index];
                 let mut occ = false;
                 for (s, e) in column_occ {

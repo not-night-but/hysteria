@@ -1,4 +1,5 @@
 use git2::Oid;
+use serde::ser::SerializeStruct;
 
 pub struct Branch {
     pub target: Oid,
@@ -15,6 +16,33 @@ pub struct Branch {
     pub range: (Option<usize>, Option<usize>),
 }
 
+impl serde::Serialize for Branch {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("Branch", 11)?;
+        state.serialize_field("target", &self.target.to_string())?;
+        let merge_target = if let Some(target) = &self.merge_target {
+            Some(target.to_string())
+        } else {
+            None
+        };
+        state.serialize_field("merge_target", &merge_target)?;
+        state.serialize_field("source_branch", &self.source_branch)?;
+        state.serialize_field("target_branch", &self.target_branch)?;
+        state.serialize_field("name", &self.name)?;
+        state.serialize_field("persistence", &self.persistence)?;
+        state.serialize_field("is_remote", &self.is_remote)?;
+        state.serialize_field("is_merged", &self.is_merged)?;
+        state.serialize_field("is_tag", &self.is_tag)?;
+        state.serialize_field("svg_props", &self.svg_props)?;
+        state.serialize_field("range", &self.range)?;
+        state.end()
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct BranchSvgProps {
     pub order_group: usize,
     pub target_order_group: Option<usize>,
@@ -26,21 +54,21 @@ pub struct BranchSvgProps {
 }
 
 // represents an svg line
-#[derive(Default)]
+#[derive(Default, serde::Serialize, serde::Deserialize)]
 pub struct Line {
     pub start: Point,
     pub end: Point,
 }
 
 // represents the start or end of a line
-#[derive(Default)]
+#[derive(Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Point {
     pub x: u32,
     pub y: u32,
 }
 
 // represents the commit 'dot' on a graph
-#[derive(Default)]
+#[derive(Default, serde::Serialize, serde::Deserialize)]
 pub struct Vertex {
     pub x: u32,
     pub y: u32,
@@ -94,6 +122,10 @@ impl BranchSvgProps {
         let start = Point { x: x1, y: y1 };
         let end = Point { x: x2, y: y2 };
 
+        self.lines.push(Line { start, end });
+    }
+
+    pub fn add_line_from_points(&mut self, start: Point, end: Point) {
         self.lines.push(Line { start, end });
     }
 

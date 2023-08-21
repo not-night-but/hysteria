@@ -77,6 +77,15 @@ export const useGitDataStore = defineStore('gitData', {
     },
     async loadRepo(repoPath: string): Promise<void> {
       this.$reset();
+      let start = new Date();
+      const data = await invoke('get_repo_data', {
+        repoPath
+      }).catch((err) => {
+        console.error(err)
+      });
+      let end = new Date();
+      console.log('DATA: ', data);
+      console.log('TIME: ', end.getTime() - start.getTime());
       await this.loadCommits(repoPath);
       await this.loadRepoBranches(repoPath);
 
