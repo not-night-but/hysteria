@@ -4,3 +4,5 @@ Just a project I'm working on in my free time (mostly just on weekends and some 
 I'd also like to have closer integration with GitHub (viewing repository issues, pull requests, collaborators, etc.)
 
 This is currently being developed with Rust, Tauri, Vue, Typescript, and SCSS
+
+Lets hope I don't abandon this project in a couple months.
