@@ -24,6 +24,7 @@ import BranchList from './components/repository/BranchList.vue';
 import ChangesList from './components/repository/ChangesList.vue';
 import { useAppStore } from './stores/app';
 import { useGitDataStore } from './stores/gitData';
+import { useRepoDataStore } from './stores/repoData';
 
 export default {
   components: {
@@ -47,7 +48,7 @@ export default {
     ...mapActions(useAppStore, {
       init: 'init'
     }),
-    ...mapActions(useGitDataStore, {
+    ...mapActions(useRepoDataStore, {
       loadRepo: 'loadRepo'
     })
   },

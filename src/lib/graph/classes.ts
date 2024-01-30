@@ -214,7 +214,6 @@ export class Vertex {
 }
 
 export class VertexData {
-  public readonly id: number;
   public readonly cx: number;
   public readonly cy: number;
   public readonly r: number;
@@ -222,8 +221,7 @@ export class VertexData {
   public readonly isMerge: boolean;
   public readonly sha: string;
 
-  constructor(id: number, cx: number, cy: number, r: number, colour: string, isMerge: boolean, sha: string) {
-    this.id = id;
+  constructor(cx: number, cy: number, r: number, colour: string, isMerge: boolean, sha: string) {
     this.cx = cx;
     this.cy = cy;
     this.r = r;

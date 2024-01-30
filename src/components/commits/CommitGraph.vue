@@ -1,5 +1,5 @@
 <template>
-	<svg id="graph-svg" :height="svgHeight" :width="`${svgWidth}px`">
+	<!--<svg id="graph-svg" :height="svgHeight" :width="`${svgWidth}px`">
 		<g>
 			<path v-for="branch of branches" :key="branch.id" :id="`branch-${branch.id}`" :d="drawBranch(branch as Branch)"
 				fill="none" :stroke="getBranchColour(branch as Branch)" stroke-width="2">
@@ -15,13 +15,31 @@
 				</rect>
 			</g>
 		</g>
+	</svg>-->
+	<svg :height="svgHeight" :width="'500px'">
+		<g>
+			<path v-for="branch of branches" :key="branch.name" :id="`branch-${branch.name}`" :d="drawBranch(branch)"
+				fill="none" :stroke="getBranchColour(branch)" stroke-width="2">
+			</path>
+			<g v-for="vertex of vertexData">
+				<circle v-if="!vertex.isMerge" :data-id="vertex.sha" :cx="vertex.cx" :cy="vertex.cy" :fill="vertex.colour"
+					:r="vertex.sha === selectedCommit ? vertex.r * 2 : vertex.r" />
+
+				<rect v-if="vertex.isMerge" class="diamond" :width="vertex.r * (vertex.sha === selectedCommit ? 3 : 2)"
+					:height="vertex.r * (vertex.sha === selectedCommit ? 3 : 2)"
+					:x="vertex.cx - vertex.r * (vertex.sha === selectedCommit ? 1.5 : 1)"
+					:y="vertex.cy - vertex.r * (vertex.sha === selectedCommit ? 1.5 : 1)" :fill="vertex.colour" />
+			</g>
+		</g>
 	</svg>
 </template>
 
 <script lang="ts">
 import { useGitDataStore } from '@/stores/gitData';
+import { useRepoDataStore } from '@/stores/repoData';
 import { mapState, mapActions } from 'pinia';
-import { Branch, PlacedLine, VertexData, Vertex } from '@/lib/graph/classes';
+import { PlacedLine, VertexData } from '@/lib/graph/classes';
+import { Branch, Line, Point, Vertex } from '@/lib/models';
 import { useAppStore } from '@/stores/app';
 
 
@@ -34,24 +52,37 @@ export default {
 	computed: {
 		...mapState(useGitDataStore, {
 			vertices: 'vertices',
-			branches: 'branches',
+			// branches: 'branches',
 			config: 'config',
-			svgHeight: 'svgHeight',
+			// svgHeight: 'svgHeight',
 			svgWidth: 'svgWidth'
+		}),
+		...mapState(useRepoDataStore, {
+			data: 'data'
 		}),
 		...mapState(useAppStore, {
 			selectedCommit: 'selectedCommitId'
 		}),
+		svgHeight() {
+			return this.branches.reduce((p, c, i, arr) => {
+				return p + arr[i].svg_props.vertices.length;
+			}, 0) * this.config.y + this.config.offsetY - this.config.y / 2;
+		},
+		branches() {
+			return this.data.branches.map((i) => this.data.all_branches[i]);
+		},
 		vertexData(): VertexData[] {
 			if (this.vertices === null || this.config === null) return [];
-			return (this.vertices as Vertex[]).filter((vertex: Vertex) => vertex.isOnBranch()).map((vertex: Vertex) => {
-				const id: number = vertex.id;
-				const cx: number = vertex.getX() * this.config.x + this.config.offsetX;
-				const cy: number = vertex.id * this.config.y + this.config.offsetY;
+			return this.branches.reduce((vertices, branch, _i, _arr) => {
+				return [...vertices, ...branch.svg_props.vertices];
+			}, new Array<any>()).map((vertex: Vertex) => {
+				const cx: number = vertex.x * this.config.x + this.config.offsetX;
+				const cy: number = vertex.y * this.config.y + this.config.offsetY;
 				const r: number = 4;
-				const colour: string = this.config.colours[vertex.getBranch()?.getColour() as number % this.config.colours.length] as string;
+				// const colour: string = this.config.colours[vertex.getBranch()?.getColour() as number % this.config.colours.length] as string;
 
-				return new VertexData(id, cx, cy, r, colour, vertex.isMerge(), vertex.sha as string);
+				// TODO (@day): colour needs to be fixed
+				return new VertexData(cx, cy, r, "#eb6d5d", vertex.is_merge, vertex.commit_id);
 			});
 		},
 	},
@@ -60,11 +91,13 @@ export default {
 		drawBranch(branch: Branch) {
 			if (this.config === null) return '';
 			const d = this.config.y * 0.8;
-			let lines = branch.getLines().map(line => {
-				this.updateFurthestX(line.p1.y, line.p1.x);
-				this.updateFurthestX(line.p2.y, line.p2.x);
-				const p1 = line.p1.toPixel(this.config);
-				const p2 = line.p2.toPixel(this.config);
+			let lines = branch.svg_props.lines.map((line: Line) => {
+				const start = new Point(line.start);
+				const end = new Point(line.end);
+				this.updateFurthestX(start.y, start.x);
+				this.updateFurthestX(end.y, end.x);
+				const p1 = start.toPixel(this.config);
+				const p2 = end.toPixel(this.config);
 				return new PlacedLine(p1, p2);
 			});
 
@@ -100,7 +133,8 @@ export default {
 		},
 		getBranchColour(branch: Branch) {
 			if (this.config === null) return '';
-			return this.config.colours[branch.getColour() % this.config.colours.length] as string;
+			return branch.svg_props.colour;
+			// return this.config.colours[branch.getColour() % this.config.colours.length] as string;
 		},
 		getPathLength(id: number): number {
 			let path = document.getElementById(`branch-${id}`);
@@ -117,5 +151,4 @@ export default {
 	transform-box: fill-box;
 	transform-origin: center;
 	transform: rotate(45deg);
-}
-</style>
+}</style>

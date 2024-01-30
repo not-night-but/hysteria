@@ -1,4 +1,11 @@
-use crate::{error::Error, models::Repo, AppState};
+use crate::{
+    error::Error,
+    models::{
+        app::Repo,
+        repo_data::{DrawType, GitExtDraw, RepoData},
+    },
+    AppState,
+};
 use git2::{BranchType, Repository};
 use tauri::State;
 
@@ -51,4 +58,13 @@ pub fn add_repo(state: State<AppState>, repo: Repo) -> Result<(), Error> {
     } else {
         Err(Error::HysteriaError("Failed to add repository".to_owned()))
     }
+}
+
+#[tauri::command]
+pub fn get_repo_data(repo_path: String) -> Result<RepoData, Error> {
+    let draw_type = DrawType::Ext(GitExtDraw::default());
+    let repo = Repository::open(repo_path)?;
+    let data = RepoData::new(repo, draw_type)?;
+
+    Ok(data)
 }

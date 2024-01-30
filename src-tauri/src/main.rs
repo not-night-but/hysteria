@@ -10,7 +10,7 @@ use tauri::{generate_handler, Manager};
 
 use crate::handlers::{
     commits_handler::get_commits,
-    repo_handler::{add_repo, get_repo_branches, get_user_repos},
+    repo_handler::{add_repo, get_repo_branches, get_repo_data, get_user_repos},
 };
 
 mod error;
@@ -37,7 +37,8 @@ fn main() {
             get_commits,
             get_repo_branches,
             get_user_repos,
-            add_repo
+            add_repo,
+            get_repo_data
         ])
         .run(context)
         .expect("error while running tauri application");
